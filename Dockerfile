@@ -4,7 +4,8 @@ FROM php:8.3-fpm
 # installing main dependencies
 RUN apt-get update && apt-get install -y \
     git \
-    ffmpeg 
+    ffmpeg \
+    procps
 
 # installing unzip dependencies
 RUN apt-get install -y \
@@ -50,6 +51,9 @@ RUN npm install -g laravel-echo-server
 ARG container_project_path
 ARG uid
 ARG user
+
+# copy php-fpm pool configuration
+COPY ./.configs/nginx/pools/www.cnf /usr/local/etc/php-fpm.d/www.conf
 
 # adding user
 RUN useradd -G www-data,root -u $uid -d /home/$user $user
