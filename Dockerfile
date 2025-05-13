@@ -35,15 +35,16 @@ RUN docker-php-ext-configure intl && docker-php-ext-install intl
 RUN docker-php-ext-install bcmath calendar exif gmp mysqli pdo pdo_mysql zip
 
 # installing composer
-COPY --from=composer:2.7 /usr/bin/composer /usr/local/bin/composer
+COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
 
 # installing node js
-COPY --from=node:23 /usr/local/lib/node_modules /usr/local/lib/node_modules
-COPY --from=node:23 /usr/local/bin/node /usr/local/bin/node
+COPY --from=node:latest /usr/local/lib/node_modules /usr/local/lib/node_modules
+COPY --from=node:latest /usr/local/bin/node /usr/local/bin/node
 RUN ln -s /usr/local/lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm
 
 # installing global node dependencies
 RUN npm install -g npx
+RUN npm install -g laravel-echo-server
 
 # arguments
 ARG container_project_path
