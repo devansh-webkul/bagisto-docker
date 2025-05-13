@@ -1,4 +1,4 @@
 # container id
-CONTAINER_ID=$(docker ps -aqf "name=bagisto-php-apache")
+CONTAINER_ID=$(docker ps -aqf "name=php-fpm")
 
-docker exec -w /var/www/html/bagisto -it ${CONTAINER_ID} bash
+docker exec -u $USER -w /var/www/html -it ${CONTAINER_ID} bash
