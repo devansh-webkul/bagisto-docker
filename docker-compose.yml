@@ -28,7 +28,7 @@ services:
       bagisto:
         ipv4_address: 172.16.0.3
     volumes:
-      - ./.configs/mysql-data:/var/lib/mysql/
+      - ./.configs/data/mysql-data:/var/lib/mysql/
       - ./workspace/:/var/www/html/
 
   phpmyadmin:
@@ -48,7 +48,7 @@ services:
     image: redis:6.2-alpine
     command: redis-server --save 20 1 --loglevel warning
     volumes:
-      - ./.configs/redis-data:/data
+      - ./.configs/data/redis-data:/data
     networks:
       bagisto:
         ipv4_address: 172.16.0.5
@@ -68,7 +68,7 @@ services:
         soft: 65536
         hard: 65536
     volumes:
-      - ./.configs/elasticsearch-data:/var/lib/elasticsearch/data
+      - ./.configs/data/elasticsearch-data:/var/lib/elasticsearch/data
     networks:
       bagisto:
         ipv4_address: 172.16.0.6
