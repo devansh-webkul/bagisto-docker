@@ -5,7 +5,10 @@ FROM php:8.3-fpm
 RUN apt-get update && apt-get install -y \
     git \
     ffmpeg \
-    procps
+    procps \
+    nginx \
+    curl \
+    varnish
 
 # installing unzip dependencies
 RUN apt-get install -y \
@@ -55,10 +58,42 @@ ARG user
 # copy php-fpm pool configuration
 COPY ./.configs/nginx/pools/www.cnf /usr/local/etc/php-fpm.d/www.conf
 
+# copy nginx configuration
+COPY ./.configs/nginx/nginx.conf /etc/nginx/conf.d/default.conf
+
+# copy varnish configuration
+COPY ./.configs/varnish/default.vcl /etc/varnish/default.vcl
+
+# set default varnish working directory and secret file for varnishadm
+ENV VARNISH_DEFAULT_N=/var/lib/varnish
+ENV VARNISH_DEFAULT_S=/etc/varnish/secret
+ENV VARNISH_DEFAULT_T=localhost:6082
+
 # adding user
 RUN useradd -G www-data,root -u $uid -d /home/$user $user
 RUN mkdir -p /home/$user/.composer && \
     chown -R $user:$user /home/$user
+
+# create a group for varnishadm access
+RUN groupadd -r varnishadm && \
+    usermod -aG varnishadm www-data && \
+    usermod -aG varnishadm $user
+
+# change ownership of varnish secret
+RUN chown root:varnishadm /etc/varnish/secret && \
+    chmod 640 /etc/varnish/secret
+
+# give group access to instance directory and make it sticky
+RUN mkdir -p /var/lib/varnish \
+    && chown -R root:varnishadm /var/lib/varnish \
+    && chmod -R 775 /var/lib/varnish \
+    && chmod g+s /var/lib/varnish
+
+# ensure varnishadm binary has proper permissions
+RUN chmod 755 /usr/bin/varnishadm
+
+# add custom user to varnish system group if it exists
+RUN getent group varnish && usermod -aG varnish $user || true
 
 # setting up project from `src` folder
 RUN chmod -R 775 $container_project_path

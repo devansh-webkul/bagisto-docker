@@ -36,7 +36,7 @@ However, there may be some specific cases where adjustments are necessary. We re
 
   ```yml
   services:
-    php-fpm:
+    php:
       build:
         args:
           container_project_path: /var/www/html/
@@ -44,21 +44,12 @@ However, there may be some specific cases where adjustments are necessary. We re
           user: $USER
         context: .
         dockerfile: ./Dockerfile
-      image: php-fpm
+      image: php
       ports:
+        - "80:80" # adjust your port here, if you want to change
         - "5173:5173" # Vite dev server port
       volumes:
         - ./workspace/:/var/www/html/
-
-    nginx:
-      image: nginx:latest
-      ports:
-        - "80:80" # adjust your port here, if you want to change
-      volumes:
-        - ./workspace/:/var/www/html/
-        - ./.configs/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
-      depends_on:
-        - php-fpm
   ```
 
 - In this repository, the initial focus was on meeting all project requirements. Whether your project is new or pre-existing, you can easily copy and paste it into the designated workspace directory. If you’re unsure where to begin, a shell script has been provided to streamline the setup process for you. To install and set up everything, simply run:

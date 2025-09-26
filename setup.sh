@@ -23,7 +23,7 @@ $DOCKER_COMPOSE down -v
 $DOCKER_COMPOSE build && $DOCKER_COMPOSE up -d
 
 # container id by image name
-php_container_id=$(docker ps -aqf "name=php-fpm")
+php_container_id=$(docker ps -aqf "name=php")
 db_container_id=$(docker ps -aqf "name=mysql")
 
 # checking connection
