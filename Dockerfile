@@ -11,6 +11,15 @@ ARG uid
 ARG user
 
 # -----------------------------
+# Project User Setup
+# -----------------------------
+RUN useradd -G www-data,root -u $uid -d /home/$user $user \
+    && mkdir -p /home/$user/.composer \
+    && chown -R $user:$user /home/$user \
+    && chmod -R 775 $container_project_path \
+    && chown -R $user:www-data $container_project_path
+
+# -----------------------------
 # System Dependencies
 # -----------------------------
 RUN apt-get update && apt-get install -y \
@@ -94,15 +103,6 @@ RUN groupadd -r varnishadm \
     && chmod 640 /etc/varnish/secret \
     && chmod 755 /usr/bin/varnishadm \
     && getent group varnish && usermod -aG varnish $user || true
-
-# -----------------------------
-# Project User Setup
-# -----------------------------
-RUN useradd -G www-data,root -u $uid -d /home/$user $user \
-    && mkdir -p /home/$user/.composer \
-    && chown -R $user:$user /home/$user \
-    && chmod -R 775 $container_project_path \
-    && chown -R $user:www-data $container_project_path
 
 # -----------------------------
 # Working Directory & User
