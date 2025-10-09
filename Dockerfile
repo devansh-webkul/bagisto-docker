@@ -52,8 +52,15 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
 RUN pecl install imagick \
     && docker-php-ext-enable imagick
 
+# Swoole
+RUN pecl install swoole \
+    && docker-php-ext-enable swoole
+
 # Intl
 RUN docker-php-ext-configure intl && docker-php-ext-install intl
+
+# PCNTL (For Process Control / Signals)
+RUN docker-php-ext-install pcntl
 
 # Other Common Extensions
 RUN docker-php-ext-install bcmath calendar exif gmp mysqli pdo pdo_mysql zip
@@ -103,6 +110,11 @@ RUN groupadd -r varnishadm \
     && chmod 640 /etc/varnish/secret \
     && chmod 755 /usr/bin/varnishadm \
     && getent group varnish && usermod -aG varnish $user || true
+
+# -----------------------------
+# Custom PHP Configuration
+# -----------------------------
+COPY ./.configs/php/php.ini /usr/local/etc/php/php.ini
 
 # -----------------------------
 # Working Directory & User
