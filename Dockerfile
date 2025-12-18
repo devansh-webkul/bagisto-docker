@@ -63,7 +63,7 @@ RUN docker-php-ext-configure intl && docker-php-ext-install intl
 RUN docker-php-ext-install pcntl
 
 # Other Common Extensions
-RUN docker-php-ext-install bcmath calendar exif gmp mysqli pdo pdo_mysql zip
+RUN docker-php-ext-install bcmath calendar exif gmp mysqli pdo pdo_mysql sockets zip
 
 # -----------------------------
 # Composer
