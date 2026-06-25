@@ -24,6 +24,8 @@ ENV TZ=UTC
 # ---------------------------------------------------------------------------------------
 RUN apt-get update && apt-get install -y \
     apt-transport-https \
+    autoconf \
+    build-essential \
     ca-certificates \
     curl \
     ffmpeg \
@@ -40,7 +42,6 @@ RUN apt-get update && apt-get install -y \
     libzip-dev \
     nano \
     nginx \
-    php-pear \
     php8.3 \
     php8.3-bcmath \
     php8.3-calendar \
@@ -59,6 +60,9 @@ RUN apt-get update && apt-get install -y \
     php8.3-sockets \
     php8.3-xml \
     php8.3-zip \
+    php-imagick \
+    pkg-config \
+    libssl-dev \
     procps \
     software-properties-common \
     supervisor \
@@ -69,20 +73,21 @@ RUN apt-get update && apt-get install -y \
 
 
 # ---------------------------------------------------------------------------------------
-# Imagick (PECL)
+# Swoole (compiled from source — pecl.php.net is unreachable from this build,
+# and Ubuntu 24.04 does not package php-swoole)
 # ---------------------------------------------------------------------------------------
-RUN pecl channel-update pecl.php.net \
-    && pecl install imagick \
-    && echo "extension=imagick.so" > /etc/php/8.3/mods-available/imagick.ini \
-    && phpenmod imagick
-
-
-# ---------------------------------------------------------------------------------------
-# Swoole (PECL)
-# ---------------------------------------------------------------------------------------
-RUN pecl install swoole \
+ARG swoole_version=5.1.3
+RUN curl -fsSL "https://github.com/swoole/swoole-src/archive/refs/tags/v${swoole_version}.tar.gz" -o /tmp/swoole.tar.gz \
+    && mkdir -p /tmp/swoole \
+    && tar -xzf /tmp/swoole.tar.gz -C /tmp/swoole --strip-components=1 \
+    && cd /tmp/swoole \
+    && phpize \
+    && ./configure --enable-openssl \
+    && make -j"$(nproc)" \
+    && make install \
     && echo "extension=swoole.so" > /etc/php/8.3/mods-available/swoole.ini \
-    && phpenmod swoole
+    && phpenmod swoole \
+    && rm -rf /tmp/swoole /tmp/swoole.tar.gz
 
 
 # ---------------------------------------------------------------------------------------
