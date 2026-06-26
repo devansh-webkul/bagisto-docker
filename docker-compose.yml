@@ -1,14 +1,14 @@
 services:
-  php:
-    container_name: php
+  nginx-php:
+    container_name: nginx-php
     build:
       args:
         uid: 1406
         user: $USER
         container_project_path: /var/www/html/
-      context: .
-      dockerfile: ./Dockerfile
-    image: php
+      context: ./runtimes/nginx-php
+      dockerfile: Dockerfile
+    image: nginx-php
     ports:
       - 80:80
       - 5173:5173
@@ -16,9 +16,29 @@ services:
       - "8080-8085:8080-8085"
     volumes:
       - ~/.ssh:/home/$USER/.ssh
-      - ./.configs/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
-      - ./.configs/varnish/default.vcl:/etc/varnish/default.vcl
-      - ./.configs/supervisor/:/etc/supervisor/conf.d/
+      - ./runtimes/nginx-php/configs/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./runtimes/nginx-php/configs/nginx/snippets/bagisto.conf:/etc/nginx/snippets/bagisto.conf
+      - ./runtimes/nginx-php/configs/nginx/sites/:/etc/nginx/sites/
+      - ./runtimes/nginx-php/configs/supervisor/:/etc/supervisor/conf.d/
+      - ./workspace/:/var/www/html/
+
+  litespeed-php:
+    container_name: litespeed-php
+    build:
+      args:
+        uid: 1406
+        user: $USER
+        container_project_path: /var/www/html/
+      context: ./runtimes/litespeed-php
+      dockerfile: Dockerfile
+    image: litespeed-php
+    ports:
+      - 81:80
+    volumes:
+      - ~/.ssh:/home/$USER/.ssh
+      - ./runtimes/litespeed-php/configs/openlitespeed/httpd_config.conf:/usr/local/lsws/conf/httpd_config.conf:ro
+      - ./runtimes/litespeed-php/configs/openlitespeed/templates/bagisto.conf:/usr/local/lsws/conf/templates/bagisto.conf:ro
+      - ./runtimes/litespeed-php/configs/supervisor/:/etc/supervisor/conf.d/
       - ./workspace/:/var/www/html/
 
   mysql:
@@ -30,7 +50,7 @@ services:
       MYSQL_ROOT_HOST: "%"
       MYSQL_ROOT_PASSWORD: root
     volumes:
-      - ./.configs/data/mysql-data:/var/lib/mysql/
+      - ./.runtimes-data/mysql-data:/var/lib/mysql/
 
   phpmyadmin:
     image: phpmyadmin:latest
@@ -52,7 +72,7 @@ services:
   #     POSTGRES_USER: root
   #     POSTGRES_PASSWORD: root
   #   volumes:
-  #     - ./.configs/data/postgres-data:/var/lib/postgresql/data
+  #     - ./.runtimes-data/postgres-data:/var/lib/postgresql/data
 
   # pgadmin:
   #   image: dpage/pgadmin4:latest
@@ -68,7 +88,7 @@ services:
   #     - 6379:6379
   #   command: redis-server --save 20 1 --loglevel warning
   #   volumes:
-  #     - ./.configs/data/redis-data:/data
+  #     - ./.runtimes-data/redis-data:/data
 
   # rabbitmq:
   #   image: rabbitmq:3-management-alpine

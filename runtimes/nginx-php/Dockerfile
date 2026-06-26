@@ -24,8 +24,6 @@ ENV TZ=UTC
 # ---------------------------------------------------------------------------------------
 RUN apt-get update && apt-get install -y \
     apt-transport-https \
-    autoconf \
-    build-essential \
     ca-certificates \
     curl \
     ffmpeg \
@@ -61,33 +59,12 @@ RUN apt-get update && apt-get install -y \
     php8.3-xml \
     php8.3-zip \
     php-imagick \
-    pkg-config \
-    libssl-dev \
     procps \
     software-properties-common \
     supervisor \
     unzip \
-    varnish \
     zlib1g-dev \
     && rm -rf /var/lib/apt/lists/*
-
-
-# ---------------------------------------------------------------------------------------
-# Swoole (compiled from source — pecl.php.net is unreachable from this build,
-# and Ubuntu 24.04 does not package php-swoole)
-# ---------------------------------------------------------------------------------------
-ARG swoole_version=5.1.3
-RUN curl -fsSL "https://github.com/swoole/swoole-src/archive/refs/tags/v${swoole_version}.tar.gz" -o /tmp/swoole.tar.gz \
-    && mkdir -p /tmp/swoole \
-    && tar -xzf /tmp/swoole.tar.gz -C /tmp/swoole --strip-components=1 \
-    && cd /tmp/swoole \
-    && phpize \
-    && ./configure --enable-openssl \
-    && make -j"$(nproc)" \
-    && make install \
-    && echo "extension=swoole.so" > /etc/php/8.3/mods-available/swoole.ini \
-    && phpenmod swoole \
-    && rm -rf /tmp/swoole /tmp/swoole.tar.gz
 
 
 # ---------------------------------------------------------------------------------------
@@ -110,36 +87,16 @@ RUN ln -sf /usr/local/lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm \
 # ---------------------------------------------------------------------------------------
 # PHP Configuration
 # ---------------------------------------------------------------------------------------
-COPY ./.configs/php/php.ini /etc/php/8.3/fpm/php.ini
+COPY ./configs/php/php.ini /etc/php/8.3/fpm/php.ini
 
 
 # ---------------------------------------------------------------------------------------
 # Nginx Configuration
 # ---------------------------------------------------------------------------------------
-COPY ./.configs/nginx/pools/www.cnf /etc/php/8.3/fpm/pool.d/www.conf
-COPY ./.configs/nginx/nginx.conf /etc/nginx/conf.d/default.conf
-
-
-# ---------------------------------------------------------------------------------------
-# Varnish Configuration
-# ---------------------------------------------------------------------------------------
-COPY ./.configs/varnish/default.vcl /etc/varnish/default.vcl
-
-ENV VARNISH_DEFAULT_N=/var/lib/varnish
-ENV VARNISH_DEFAULT_S=/etc/varnish/secret
-ENV VARNISH_DEFAULT_T=localhost:6082
-
-RUN groupadd -r varnishadm \
-    && usermod -aG varnishadm www-data \
-    && usermod -aG varnishadm $user \
-    && mkdir -p /var/lib/varnish \
-    && chown -R root:varnishadm /var/lib/varnish \
-    && chmod -R 775 /var/lib/varnish \
-    && chmod g+s /var/lib/varnish \
-    && chown root:varnishadm /etc/varnish/secret \
-    && chmod 640 /etc/varnish/secret \
-    && chmod 755 /usr/bin/varnishadm \
-    && getent group varnish && usermod -aG varnish $user || true
+COPY ./configs/nginx/pools/www.cnf /etc/php/8.3/fpm/pool.d/www.conf
+COPY ./configs/nginx/nginx.conf /etc/nginx/conf.d/default.conf
+COPY ./configs/nginx/snippets/ /etc/nginx/snippets/
+COPY ./configs/nginx/sites/ /etc/nginx/sites/
 
 
 # ---------------------------------------------------------------------------------------
