@@ -47,24 +47,24 @@ RUN apt-get update && apt-get install -y \
 
 
 # ---------------------------------------------------------------------------------------
-# OpenLiteSpeed + lsphp83 (native LSAPI PHP)
+# OpenLiteSpeed + lsphp84 (native LSAPI PHP)
 # repo.litespeed.sh adds the LiteSpeed repo and runs its own apt-get update.
 # ---------------------------------------------------------------------------------------
 RUN wget -qO - https://repo.litespeed.sh | bash \
     && apt-get install -y \
     openlitespeed \
-    lsphp83 \
-    lsphp83-common \
-    lsphp83-curl \
-    lsphp83-imagick \
-    lsphp83-intl \
-    lsphp83-mysql \
-    lsphp83-opcache \
+    lsphp84 \
+    lsphp84-common \
+    lsphp84-curl \
+    lsphp84-imagick \
+    lsphp84-intl \
+    lsphp84-mysql \
+    lsphp84-opcache \
     && rm -rf /var/lib/apt/lists/*
 
-ENV PATH=/usr/local/lsws/lsphp83/bin:$PATH
+ENV PATH=/usr/local/lsws/lsphp84/bin:$PATH
 
-RUN ln -sf /usr/local/lsws/lsphp83/bin/php /usr/local/bin/php
+RUN ln -sf /usr/local/lsws/lsphp84/bin/php /usr/local/bin/php
 
 
 # ---------------------------------------------------------------------------------------
@@ -85,9 +85,9 @@ RUN ln -sf /usr/local/lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm \
 
 
 # ---------------------------------------------------------------------------------------
-# PHP Configuration (lsphp83 — LSAPI and CLI)
+# PHP Configuration (lsphp84 — LSAPI and CLI)
 # ---------------------------------------------------------------------------------------
-COPY ./configs/php/php.ini /usr/local/lsws/lsphp83/etc/php/8.3/litespeed/php.ini
+COPY ./configs/php/php.ini /usr/local/lsws/lsphp84/etc/php/8.4/litespeed/php.ini
 
 
 # ---------------------------------------------------------------------------------------

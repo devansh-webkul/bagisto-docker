@@ -20,7 +20,8 @@ ENV TZ=UTC
 
 
 # ---------------------------------------------------------------------------------------
-# System Dependencies + PHP 8.3 (Available Natively In Ubuntu 24.04)
+# System Dependencies (Ubuntu 24.04 ships PHP 8.3 natively; PHP 8.4 comes from
+# the ondrej/php PPA)
 # ---------------------------------------------------------------------------------------
 RUN apt-get update && apt-get install -y \
     apt-transport-https \
@@ -40,30 +41,32 @@ RUN apt-get update && apt-get install -y \
     libzip-dev \
     nano \
     nginx \
-    php8.3 \
-    php8.3-bcmath \
-    php8.3-calendar \
-    php8.3-cli \
-    php8.3-curl \
-    php8.3-dev \
-    php8.3-exif \
-    php8.3-fpm \
-    php8.3-gd \
-    php8.3-gmp \
-    php8.3-intl \
-    php8.3-mbstring \
-    php8.3-mysql \
-    php8.3-pdo \
-    php8.3-soap \
-    php8.3-sockets \
-    php8.3-xml \
-    php8.3-zip \
-    php-imagick \
     procps \
     software-properties-common \
     supervisor \
     unzip \
     zlib1g-dev \
+    && add-apt-repository -y ppa:ondrej/php \
+    && apt-get update && apt-get install -y \
+    php8.4 \
+    php8.4-bcmath \
+    php8.4-calendar \
+    php8.4-cli \
+    php8.4-curl \
+    php8.4-dev \
+    php8.4-exif \
+    php8.4-fpm \
+    php8.4-gd \
+    php8.4-gmp \
+    php8.4-intl \
+    php8.4-mbstring \
+    php8.4-mysql \
+    php8.4-pdo \
+    php8.4-soap \
+    php8.4-sockets \
+    php8.4-xml \
+    php8.4-zip \
+    php8.4-imagick \
     && rm -rf /var/lib/apt/lists/*
 
 
@@ -87,14 +90,15 @@ RUN ln -sf /usr/local/lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm \
 # ---------------------------------------------------------------------------------------
 # PHP Configuration
 # ---------------------------------------------------------------------------------------
-COPY ./configs/php/php.ini /etc/php/8.3/fpm/php.ini
+COPY ./configs/php/php.ini /etc/php/8.4/fpm/php.ini
 
 
 # ---------------------------------------------------------------------------------------
 # Nginx Configuration
 # ---------------------------------------------------------------------------------------
-COPY ./configs/nginx/pools/www.cnf /etc/php/8.3/fpm/pool.d/www.conf
-COPY ./configs/nginx/nginx.conf /etc/nginx/conf.d/default.conf
+COPY ./configs/nginx/pools/www.cnf /etc/php/8.4/fpm/pool.d/www.conf
+COPY ./configs/nginx/nginx.conf /etc/nginx/nginx.conf
+COPY ./configs/nginx/conf.d/ /etc/nginx/conf.d/
 COPY ./configs/nginx/snippets/ /etc/nginx/snippets/
 COPY ./configs/nginx/sites/ /etc/nginx/sites/
 
